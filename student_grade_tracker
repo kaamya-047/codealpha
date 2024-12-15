@@ -1,0 +1,183 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+
+public class ExtendedStudentGradeTracker {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<Double> grades = new ArrayList<>();
+        boolean exit = false;
+
+        System.out.println("Welcome to the Extended Student Grade Tracker!");
+
+        while (!exit) {
+            System.out.println("\n--- Main Menu ---");
+            System.out.println("1. Enter Grades");
+            System.out.println("2. View All Grades");
+            System.out.println("3. Compute Statistics");
+            System.out.println("4. Add More Grades");
+            System.out.println("5. Sort Grades");
+            System.out.println("6. Search for a Grade");
+            System.out.println("7. Remove a Grade");
+            System.out.println("8. Show Grade Distribution");
+            System.out.println("9. Exit");
+            System.out.print("Select an option (1-9): ");
+
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    enterGrades(scanner, grades);
+                    break;
+                case 2:
+                    viewGrades(grades);
+                    break;
+                case 3:
+                    computeStatistics(grades);
+                    break;
+                case 4:
+                    enterGrades(scanner, grades);
+                    break;
+                case 5:
+                    sortGrades(grades, scanner);
+                    break;
+                case 6:
+                    searchGrade(grades, scanner);
+                    break;
+                case 7:
+                    removeGrade(grades, scanner);
+                    break;
+                case 8:
+                    gradeDistribution(grades);
+                    break;
+                case 9:
+                    System.out.println("Exiting program. Goodbye!");
+                    exit = true;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please select a valid option.");
+            }
+        }
+    }
+
+    // Feature 1: Enter Grades
+    public static void enterGrades(Scanner scanner, ArrayList<Double> grades) {
+        System.out.println("\nEnter grades (type '-1' to stop):");
+        while (true) {
+            System.out.print("Enter grade: ");
+            double grade = scanner.nextDouble();
+            if (grade == -1) break;
+            if (grade < 0 || grade > 100) {
+                System.out.println("Please enter a valid grade between 0 and 100.");
+            } else {
+                grades.add(grade);
+            }
+        }
+    }
+
+    // Feature 2: View All Grades
+    public static void viewGrades(ArrayList<Double> grades) {
+        if (grades.isEmpty()) {
+            System.out.println("No grades available.");
+        } else {
+            System.out.println("\n--- All Grades ---");
+            for (int i = 0; i < grades.size(); i++) {
+                System.out.printf("Student %d: %.2f%n", i + 1, grades.get(i));
+            }
+        }
+    }
+
+    // Feature 3: Compute Statistics
+    public static void computeStatistics(ArrayList<Double> grades) {
+        if (grades.isEmpty()) {
+            System.out.println("No grades available to compute statistics.");
+            return;
+        }
+        double total = 0, highest = Double.MIN_VALUE, lowest = Double.MAX_VALUE;
+        for (double grade : grades) {
+            total += grade;
+            if (grade > highest) highest = grade;
+            if (grade < lowest) lowest = grade;
+        }
+        double average = total / grades.size();
+        System.out.println("\n--- Grade Statistics ---");
+        System.out.printf("Average Grade: %.2f%n", average);
+        System.out.printf("Highest Grade: %.2f%n", highest);
+        System.out.printf("Lowest Grade: %.2f%n", lowest);
+    }
+
+    // Feature 4: Sort Grades
+    public static void sortGrades(ArrayList<Double> grades, Scanner scanner) {
+        if (grades.isEmpty()) {
+            System.out.println("No grades available to sort.");
+            return;
+        }
+        System.out.println("\nSort Options:");
+        System.out.println("1. Ascending");
+        System.out.println("2. Descending");
+        System.out.print("Choose sorting order (1/2): ");
+        int order = scanner.nextInt();
+        if (order == 1) {
+            Collections.sort(grades);
+            System.out.println("Grades sorted in ascending order.");
+        } else if (order == 2) {
+            Collections.sort(grades, Collections.reverseOrder());
+            System.out.println("Grades sorted in descending order.");
+        } else {
+            System.out.println("Invalid choice.");
+        }
+        viewGrades(grades);
+    }
+
+    // Feature 5: Search for a Grade
+    public static void searchGrade(ArrayList<Double> grades, Scanner scanner) {
+        if (grades.isEmpty()) {
+            System.out.println("No grades available to search.");
+            return;
+        }
+        System.out.print("Enter the grade to search: ");
+        double grade = scanner.nextDouble();
+        if (grades.contains(grade)) {
+            System.out.println("Grade found!");
+        } else {
+            System.out.println("Grade not found.");
+        }
+    }
+
+    // Feature 6: Remove a Grade
+    public static void removeGrade(ArrayList<Double> grades, Scanner scanner) {
+        if (grades.isEmpty()) {
+            System.out.println("No grades available to remove.");
+            return;
+        }
+        System.out.print("Enter the grade to remove: ");
+        double grade = scanner.nextDouble();
+        if (grades.remove(grade)) {
+            System.out.println("Grade removed successfully.");
+        } else {
+            System.out.println("Grade not found.");
+        }
+    }
+
+    // Feature 7: Grade Distribution
+    public static void gradeDistribution(ArrayList<Double> grades) {
+        if (grades.isEmpty()) {
+            System.out.println("No grades available for distribution.");
+            return;
+        }
+        int[] distribution = new int[5]; // Ranges: 90-100, 80-89, 70-79, 60-69, 0-59
+        for (double grade : grades) {
+            if (grade >= 90) distribution[0]++;
+            else if (grade >= 80) distribution[1]++;
+            else if (grade >= 70) distribution[2]++;
+            else if (grade >= 60) distribution[3]++;
+            else distribution[4]++;
+        }
+        System.out.println("\n--- Grade Distribution ---");
+        System.out.printf("90-100: %d%n", distribution[0]);
+        System.out.printf("80-89: %d%n", distribution[1]);
+        System.out.printf("70-79: %d%n", distribution[2]);
+        System.out.printf("60-69: %d%n", distribution[3]);
+        System.out.printf("0-59: %d%n", distribution[4]);
+    }
+}
