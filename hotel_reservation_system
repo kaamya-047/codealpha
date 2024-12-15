@@ -1,0 +1,209 @@
+import java.util.*;
+
+class Room {
+    int roomNumber;
+    String type; // Single, Double, Suite
+    double pricePerNight;
+    boolean isAvailable;
+
+    public Room(int roomNumber, String type, double pricePerNight) {
+        this.roomNumber = roomNumber;
+        this.type = type;
+        this.pricePerNight = pricePerNight;
+        this.isAvailable = true;
+    }
+
+    @Override
+    public String toString() {
+        return "Room Number: " + roomNumber + ", Type: " + type + ", Price: $" + pricePerNight +
+               " per night, Status: " + (isAvailable ? "Available" : "Booked");
+    }
+}
+
+class Guest {
+    String name;
+    String contact;
+    int roomNumber;
+    int nights;
+
+    public Guest(String name, String contact, int roomNumber, int nights) {
+        this.name = name;
+        this.contact = contact;
+        this.roomNumber = roomNumber;
+        this.nights = nights;
+    }
+
+    @Override
+    public String toString() {
+        return "Guest: " + name + ", Contact: " + contact + ", Room Number: " + roomNumber + 
+               ", Nights: " + nights;
+    }
+}
+
+class Main {
+    static List<Room> rooms = new ArrayList<>();
+    static List<Guest> guests = new ArrayList<>();
+    static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        initializeRooms();
+
+        boolean exit = false;
+        while (!exit) {
+            System.out.println("\n--- Hotel Reservation System ---");
+            System.out.println("1. Search Rooms");
+            System.out.println("2. Book a Room");
+            System.out.println("3. Cancel Booking");
+            System.out.println("4. View All Guests");
+            System.out.println("5. Admin Options");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1 -> searchRooms();
+                case 2 -> bookRoom();
+                case 3 -> cancelBooking();
+                case 4 -> viewAllGuests();
+                case 5 -> adminOptions();
+                case 6 -> {
+                    System.out.println("Exiting... Thank you!");
+                    exit = true;
+                }
+                default -> System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    static void initializeRooms() {
+        rooms.add(new Room(101, "Single", 100.0));
+        rooms.add(new Room(102, "Double", 150.0));
+        rooms.add(new Room(103, "Suite", 300.0));
+        rooms.add(new Room(104, "Single", 100.0));
+        rooms.add(new Room(105, "Double", 150.0));
+    }
+
+    static void searchRooms() {
+        System.out.println("\n--- Search Rooms ---");
+        System.out.println("1. View All Rooms");
+        System.out.println("2. Search by Type");
+        System.out.println("3. Search by Price Range");
+        System.out.print("Choose an option: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (choice) {
+            case 1 -> rooms.forEach(System.out::println);
+            case 2 -> {
+                System.out.print("Enter room type (Single/Double/Suite): ");
+                String type = scanner.nextLine();
+                rooms.stream()
+                     .filter(room -> room.type.equalsIgnoreCase(type) && room.isAvailable)
+                     .forEach(System.out::println);
+            }
+            case 3 -> {
+                System.out.print("Enter minimum price: ");
+                double minPrice = scanner.nextDouble();
+                System.out.print("Enter maximum price: ");
+                double maxPrice = scanner.nextDouble();
+                rooms.stream()
+                     .filter(room -> room.pricePerNight >= minPrice && room.pricePerNight <= maxPrice && room.isAvailable)
+                     .forEach(System.out::println);
+            }
+            default -> System.out.println("Invalid option.");
+        }
+    }
+
+    static void bookRoom() {
+        System.out.println("\n--- Book a Room ---");
+        searchRooms();
+        System.out.print("Enter room number to book: ");
+        int roomNumber = scanner.nextInt();
+        scanner.nextLine();
+
+        Room selectedRoom = rooms.stream()
+                                 .filter(room -> room.roomNumber == roomNumber && room.isAvailable)
+                                 .findFirst()
+                                 .orElse(null);
+
+        if (selectedRoom != null) {
+            System.out.print("Enter guest name: ");
+            String name = scanner.nextLine();
+            System.out.print("Enter guest contact: ");
+            String contact = scanner.nextLine();
+            System.out.print("Enter number of nights: ");
+            int nights = scanner.nextInt();
+
+            selectedRoom.isAvailable = false;
+            guests.add(new Guest(name, contact, roomNumber, nights));
+            double totalCost = selectedRoom.pricePerNight * nights;
+
+            System.out.println("Booking successful! Total cost: $" + totalCost);
+        } else {
+            System.out.println("Room not available.");
+        }
+    }
+
+    static void cancelBooking() {
+        System.out.println("\n--- Cancel Booking ---");
+        System.out.print("Enter guest name to cancel booking: ");
+        scanner.nextLine();
+        String name = scanner.nextLine();
+
+        Guest guest = guests.stream()
+                            .filter(g -> g.name.equalsIgnoreCase(name))
+                            .findFirst()
+                            .orElse(null);
+
+        if (guest != null) {
+            Room room = rooms.stream()
+                             .filter(r -> r.roomNumber == guest.roomNumber)
+                             .findFirst()
+                             .orElse(null);
+            if (room != null) room.isAvailable = true;
+            guests.remove(guest);
+            System.out.println("Booking cancelled successfully.");
+        } else {
+            System.out.println("Booking not found.");
+        }
+    }
+
+    static void viewAllGuests() {
+        System.out.println("\n--- All Guests ---");
+        if (guests.isEmpty()) {
+            System.out.println("No guests found.");
+        } else {
+            guests.forEach(System.out::println);
+        }
+    }
+
+    static void adminOptions() {
+        System.out.println("\n--- Admin Options ---");
+        System.out.println("1. Add Room");
+        System.out.println("2. Remove Room");
+        System.out.print("Choose an option: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (choice) {
+            case 1 -> {
+                System.out.print("Enter room number: ");
+                int roomNumber = scanner.nextInt();
+                scanner.nextLine();
+                System.out.print("Enter room type: ");
+                String type = scanner.nextLine();
+                System.out.print("Enter price per night: ");
+                double price = scanner.nextDouble();
+                rooms.add(new Room(roomNumber, type, price));
+                System.out.println("Room added successfully.");
+            }
+            case 2 -> {
+                System.out.print("Enter room number to remove: ");
+                int roomNumber = scanner.nextInt();
+                rooms.removeIf(room -> room.roomNumber == roomNumber);
+                System.out.println("Room removed successfully.");
+            }
+            default -> System.out.println("Invalid option.");
+        }
+    }
+}
